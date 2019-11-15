@@ -1,0 +1,29 @@
+version: '3'
+services:
+  nginx-webpublish-red: # pull latest nginx image
+    image: nginx:latest
+    container_name: nginx-webpublish-red # give container a name *(not necassary)
+    volumes: # mount relative path folders inside the container
+      - ./cfg/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/red:/var/log/nginx
+      - ./src/www-red:/var/www/html
+    ports:
+      - 10000:80  # connected to virtual docker network
+    network_mode: "bridge"
+  nginx-webpublish-blue:
+    image: nginx:latest
+    container_name: nginx-webpublish-blue
+    volumes:
+      - ./cfg/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/blue:/var/log/nginx
+      - ./src/www-blue:/var/www/html
+    ports:
+      - 10001:80
+    network_mode: "bridge"
+  ha-proxy-load-balancer:
+    image: haproxy:latest
+    container_name: ha-proxy-for-red-and-blue
+    volumes:
+      - ./cfg/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    # directly accessing docker hosts network
+    network_mode: "host" 
